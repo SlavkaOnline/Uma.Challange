@@ -22,11 +22,10 @@ namespace WEBAPI.Controllers
         public async Task<ActionResult<ValueDto>> Get()
         {
           var (value, expire) = await _remoteServiceProvider.GetWithRetry("value");
-          this.Response.GetTypedHeaders().Expires = expire;
-          this.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
+          Response.GetTypedHeaders().Expires = expire;
+          Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
           {
               Public = true,
-              OnlyIfCached = true
           };
           return value;
         }

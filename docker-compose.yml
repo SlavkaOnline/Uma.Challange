@@ -1,0 +1,31 @@
+version: '3.7'
+
+services:
+  webapi:
+    container_name: uma_webapi
+    build:
+      context: .
+      dockerfile: WEBAPI/Dockerfile
+    ports:
+      - "5000:80"
+    depends_on: 
+     - mountebank
+
+  mountebank:
+    container_name: mountebank
+    image: jkris/mountebank:latest
+    volumes:
+    - ./MockServer:/imposters
+    ports:
+    - 2525:2525
+    - 5555:5555
+    command: --configfile imposters/server.ejs 
+
+  tests:
+    container_name: uma_tests
+    build: 
+      context: .
+      dockerfile: Tests/Dockerfile
+    depends_on: 
+      - webapi
+      - mountebank

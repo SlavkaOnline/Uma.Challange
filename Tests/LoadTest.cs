@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.FSharp.Core;
 using NBomber.Contracts;
 using NBomber.CSharp;
@@ -14,22 +15,20 @@ namespace Tests
         [Fact]
         public void Test()
         {
-            var client = new WebApplicationFactory<WEBAPI.Startup>().CreateClient();
-//            var step = HttpStep.Create("request",
-//                async context => Http.CreateRequest("GET", "https://localhost:5001/api/remote")
-//                    .WithHeader("Content-Type", "application/json"));
+            var step = HttpStep.Create("request",
+                context => Http.CreateRequest("GET", "http://webapi:80/api/remote")
+                    .WithHeader("Content-Type", "application/json"));
 
-            var step = Step.Create("request", async context =>
+            var pause = Step.Create("pause", async context =>
             {
-                await client.GetAsync("/api/remote");
+                var r = new Random();
+                await Task.Delay(r.Next(100, 30000));
                 return Response.Ok();
             });
-                
-
-            var scenario = ScenarioBuilder.CreateScenario("test load", step)
+            
+            var scenario = ScenarioBuilder.CreateScenario("test load", step, pause)
                 .WithConcurrentCopies(1000) 
-                .WithAssertions(Assertion.forStep("request", FSharpFunc<Statistics, bool>.FromConverter(stats => Math.Abs(2000 - stats.Max) > 10), "Max > 2000"))
-                .WithOutWarmUp()
+                .WithWarmUpDuration(TimeSpan.FromSeconds(10))
                 .WithDuration(TimeSpan.FromSeconds(300));
 
             NBomberRunner.RegisterScenarios(scenario).RunTest();
