@@ -20,12 +20,3 @@ services:
     - 2525:2525
     - 5555:5555
     command: --configfile imposters/server.ejs 
-
-  tests:
-    container_name: uma_tests
-    build: 
-      context: .
-      dockerfile: Tests/Dockerfile
-    depends_on: 
-      - webapi
-      - mountebank

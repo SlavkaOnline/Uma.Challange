@@ -16,7 +16,7 @@ namespace Tests
         public void Test()
         {
             var step = HttpStep.Create("request",
-                context => Http.CreateRequest("GET", "http://webapi:80/api/remote")
+                context => Http.CreateRequest("GET", "http://localhost:5000/api/remote")
                     .WithHeader("Content-Type", "application/json"));
 
             var pause = Step.Create("pause", async context =>
